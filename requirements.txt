@@ -1,0 +1,7 @@
+ipywidgets
+jupyterlab
+matplotlib
+torch 
+torchvision 
+torchaudio 
+transformers
