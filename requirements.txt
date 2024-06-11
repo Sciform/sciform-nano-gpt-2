@@ -1,6 +1,7 @@
 ipywidgets
 jupyterlab
 matplotlib
+tiktoken
 torch 
 torchvision 
 torchaudio 
