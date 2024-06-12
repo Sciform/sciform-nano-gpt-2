@@ -52,5 +52,5 @@ if __name__ == "__main__":
     # print the generated text
     for i in range(num_return_sequences):
         tokens = x[i, :max_length].tolist()
-        decoded = enc.decode(tokens)
-        print(">", decoded)
+        decoded_text = tt_encoding.decode(tokens)
+        print(">", decoded_text)
