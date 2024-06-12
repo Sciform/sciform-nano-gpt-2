@@ -1,25 +1,26 @@
+import tiktoken
+from tiktoken import Encoding
 import torch
+from torch import Tensor
 from torch.nn import functional as F
 
 from src.model.gpt2_nano import GPT
 
 
-# -----------------------------------------------------------------------------
 if __name__ == "__main__":
     
-    num_return_sequences = 5
-    max_length  = 30
+    num_return_sequences: int = 5
+    max_length: int = 30
 
+    # get our GPT model
     model = GPT.from_pretrained('gpt2')
     model.eval()
     # model.to('cuda')
 
-
     # prefix tokens
-    import tiktoken
-    enc = tiktoken.get_encoding('gpt2')
-    tokens = enc.encode("Hello, I'm a language model,")
-    tokens = torch.tensor(tokens, dtype=torch.long) # (8,)
+    tt_encoding: Encoding = tiktoken.get_encoding('gpt2')
+    tokens: list[int] = tt_encoding.encode("Hello, I'm a language model,")
+    tokens: Tensor = torch.tensor(tokens, dtype=torch.long) # (8,)
     tokens = tokens.unsqueeze(0).repeat(num_return_sequences, 1) # (5, 8)
     # x = tokens.to('cuda')
     x = tokens
@@ -31,9 +32,9 @@ if __name__ == "__main__":
     while x.size(1) < max_length:
         # forward the model to get the logits
         with torch.no_grad():
-            logits: torch.Tensor = model(x) # (B, T, vocab_size)
-            # take the logits at the last position
+            logits = model(x) # (B, T, vocab_size)
             logits = logits[0] # NEW convert from tuple to torch.Tensor
+            # take the logits at the last position
             logits = logits[:, -1, :] # (B, vocab_size)
             # get the probabilities
             probs = F.softmax(logits, dim=-1)
