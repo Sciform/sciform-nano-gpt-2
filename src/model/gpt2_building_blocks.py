@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 from torch.nn import functional as F
 
-from model.gpt2_config import GPTConfig
+from src.model.gpt2_config import GPTConfig
 
 
 class CausalSelfAttention(nn.Module):
