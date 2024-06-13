@@ -21,15 +21,19 @@ if __name__ == "__main__":
     tt_encoding: Encoding = tiktoken.get_encoding('gpt2')
     tokens: list[int] = tt_encoding.encode("Hello, I'm a language model,")
     tokens: Tensor = torch.tensor(tokens, dtype=torch.long) # (8,)
-    tokens = tokens.unsqueeze(0).repeat(num_return_sequences, 1) # (5, 8)
+    tokens: Tensor = tokens.unsqueeze(0).repeat(num_return_sequences, 1) # (5, 8)
+    print("shape of token tensor = ", tokens.shape)
+    print("token tensor = ", tokens)
     # x = tokens.to('cuda')
-    x = tokens
+    x: Tensor = tokens
 
     # generate! right now x is (B, T) where B = 5, T = 8
+    # append output tokens up to max_length
     # set the seed to 42
     torch.manual_seed(42)
     #torch.cuda.manual_seed(42)
     while x.size(1) < max_length:
+        print(x.size(1))
         # forward the model to get the logits
         with torch.no_grad():
             logits = model(x) # (B, T, vocab_size)
@@ -51,6 +55,6 @@ if __name__ == "__main__":
 
     # print the generated text
     for i in range(num_return_sequences):
-        tokens = x[i, :max_length].tolist()
-        decoded_text = tt_encoding.decode(tokens)
+        tokens: list[int] = x[i, :max_length].tolist()
+        decoded_text: str = tt_encoding.decode(tokens)
         print(">", decoded_text)

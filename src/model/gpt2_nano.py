@@ -15,7 +15,8 @@ class GPT(nn.Module):
 
     def __init__(self, config: GPTConfig):
         super().__init__()
-        self.config = config
+        
+        self.config: GPTConfig = config
 
         self.transformer = nn.ModuleDict(dict(
             wte=nn.Embedding(config.vocab_size, config.n_embd),
@@ -32,13 +33,18 @@ class GPT(nn.Module):
         self.apply(self._init_weights)
 
     def _init_weights(self, module):
+        
         if isinstance(module, nn.Linear):
             std = 0.02
+            
             if hasattr(module, 'NANOGPT_SCALE_INIT'):
                 std *= (2 * self.config.n_layer) ** -0.5
+                
             torch.nn.init.normal_(module.weight, mean=0.0, std=std)
+            
             if module.bias is not None:
                 torch.nn.init.zeros_(module.bias)
+                
         elif isinstance(module, nn.Embedding):
             torch.nn.init.normal_(module.weight, mean=0.0, std=0.02)
 
@@ -70,6 +76,7 @@ class GPT(nn.Module):
 
     @classmethod
     def from_pretrained(cls, model_type):
+        
         """Loads pretrained GPT-2 model weights from huggingface"""
         assert model_type in {'gpt2', 'gpt2-medium', 'gpt2-large', 'gpt2-xl'}
         from transformers import GPT2LMHeadModel
