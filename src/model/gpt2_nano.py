@@ -7,11 +7,11 @@ import torch
 import torch.nn as nn
 from torch.nn import functional as F
 
-from model.gpt2_building_blocks import Block
+from model.gpt2_building_blocks import DecoderBlock
 from model.gpt2_config import GPTConfig
 
 
-class GPT(nn.Module):
+class NanoGpt2(nn.Module):
 
     def __init__(self, config: GPTConfig):
         super().__init__()
@@ -19,11 +19,13 @@ class GPT(nn.Module):
         self.config: GPTConfig = config
 
         self.transformer = nn.ModuleDict(dict(
+            # variables are named according t
             wte=nn.Embedding(config.vocab_size, config.n_embd),
             wpe=nn.Embedding(config.block_size, config.n_embd),
-            h=nn.ModuleList([Block(config) for _ in range(config.n_layer)]),
+            h=nn.ModuleList([DecoderBlock(config) for _ in range(config.n_layer)]),
             ln_f=nn.LayerNorm(config.n_embd),
         ))
+        
         self.lm_head = nn.Linear(config.n_embd, config.vocab_size, bias=False)
 
         # weight sharing scheme
@@ -101,7 +103,7 @@ class GPT(nn.Module):
 
         # create a from-scratch initialized nanoGPT model
         nano_gpt2_config: GPTConfig = GPTConfig(**config_args)
-        nano_gpt2_model = GPT(nano_gpt2_config)
+        nano_gpt2_model = NanoGpt2(nano_gpt2_config)
         sd = nano_gpt2_model.state_dict()
         sd_keys = sd.keys()
         # discard this mask / buffer, not a param

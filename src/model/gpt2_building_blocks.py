@@ -60,18 +60,19 @@ class MLP(nn.Module):
         return x
 
 
-class Block(nn.Module):
+class DecoderBlock(nn.Module):
 
     def __init__(self, config: GPTConfig):
         super().__init__()
         self.ln_1 = nn.LayerNorm(config.n_embd)
-        self.attn = CausalSelfAttention(config)  # information exchange
+        self.attn = CausalSelfAttention(config)  # information exchange - "collective thinking"
         self.ln_2 = nn.LayerNorm(config.n_embd)
         # Multilayer Perceptron / Feedforward - individual thinking
         self.mlp = MLP(config)
 
     def forward(self, x):
-        # clean residual pathway
+        # clean residual pathway more desirable than original transformer model
+        # TODO understand better
         x = x + self.attn(self.ln_1(x))
         x = x + self.mlp(self.ln_2(x))
         return x
