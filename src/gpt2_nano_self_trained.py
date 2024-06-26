@@ -38,9 +38,9 @@ if __name__ == "__main__":
     
     model = NanoGpt2(GPTConfig())
     model.to(device)
-    logits = model(x, y)
+    logits, loss = model(x, y)
     
-    print(logits[0].shape)
+    print(loss)
     import sys; sys.exit()
         
     # sequence data
@@ -48,7 +48,6 @@ if __name__ == "__main__":
     max_length: int = 30
     
     model.eval()
-
 
     # create input tokens
     tt_encoding: Encoding = tiktoken.get_encoding('gpt2')

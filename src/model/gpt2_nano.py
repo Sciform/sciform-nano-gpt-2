@@ -51,27 +51,36 @@ class NanoGpt2(nn.Module):
             torch.nn.init.normal_(module.weight, mean=0.0, std=0.02)
 
     def forward(self, idx, targets=None):
+        
         # idx is of shape (B, T) (batch, time)
         B, T = idx.size()
         assert T <= self.config.block_size, f"Cannot forward sequence of length {T}, block size is only {self.config.block_size}"
             
+        # token embeddings of shape (B, T, n_embd)
+        tok_emb = self.transformer.wte(idx)
+        
         # forward the token and posisition embeddings
         pos = torch.arange(0, T, dtype=torch.long, device=idx.device)  # shape (T)
         # position embeddings of shape (T, n_embd)
         pos_emb = self.transformer.wpe(pos)
-        # token embeddings of shape (B, T, n_embd)
-        tok_emb = self.transformer.wte(idx)
+        
+        # add token embeddings and positon embedding
         x = tok_emb + pos_emb
         
         # forward the blocks of the transformer
         for block in self.transformer.h:
             x = block(x)
-        # forward the final layernorm and the classifier
+            
+        # forward the final layernorm 
         x = self.transformer.ln_f(x)
+        
+        # forward linear layer (classifier) and get logits
         logits = self.lm_head(x)  # (B, T, vocab_size)
+        
+        # get loss
         loss = None
         if targets is not None:
-            loss = F.cross_entropy(
+            loss: torch.Tensor = F.cross_entropy(
                 logits.view(-1, logits.size(-1)), targets.view(-1))
             
         return logits, loss
