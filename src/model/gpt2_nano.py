@@ -19,7 +19,7 @@ class NanoGpt2(nn.Module):
         self.config: GPTConfig = config
 
         self.transformer = nn.ModuleDict(dict(
-            # variables are named according t
+            # variables are named according to 
             wte=nn.Embedding(config.vocab_size, config.n_embd),
             wpe=nn.Embedding(config.block_size, config.n_embd),
             h=nn.ModuleList([DecoderBlock(config) for _ in range(config.n_layer)]),

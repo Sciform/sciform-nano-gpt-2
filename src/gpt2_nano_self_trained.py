@@ -18,6 +18,8 @@ if __name__ == "__main__":
         device = "cuda"
     print(f"using device: {device}")
     
+    # TRAINING DATA LOADER
+    
     # load raw data Tiny Shakespeare
     # !wget https://raw.githubusercontent.com/karpathy/char-rnn/master/data/tinyshakespeare/input.txt
     file_name = path.join('data', 'input.txt')
@@ -31,25 +33,27 @@ if __name__ == "__main__":
     tokens: list[int] = tt_encoding.encode(raw_data)
     B, T = 4, 32
     token_buffer = torch.tensor(tokens[:B*T+1])
+    
     # train data
     x = token_buffer[:-1].view(B,T)
     y = token_buffer[1:].view(B,T)
-    # get our NanoGpt2 model with config for training
     
+    # MODEL TRAINING
+    
+    # get our NanoGpt2 model with config for training
     model = NanoGpt2(GPTConfig())
     model.to(device)
     logits, loss = model(x, y)
     
-    print(loss)
-    import sys; sys.exit()
+    print("The trainings loss = ", loss)
+    
+    ### INFERENCE DATA GENERATOR
         
     # sequence data
     num_return_sequences: int = 5
     max_length: int = 30
-    
-    model.eval()
 
-    # create input tokens
+    # create input tokens 
     tt_encoding: Encoding = tiktoken.get_encoding('gpt2')
     tokens: list[int] = tt_encoding.encode("Hello, I'm a language model,")
     tokens: Tensor = torch.tensor(tokens, dtype=torch.long) # (8,)
@@ -57,7 +61,12 @@ if __name__ == "__main__":
     print("Shape of token tensor = ", tokens.shape)
     print("Token tensor = ", tokens)
     x: Tensor = tokens.to(device)
+    
+    # set model in evaluation mode
+    model.eval()
 
+    ### MODEL INFERENCE ###
+        
     # generate! right now x is (B, T) where B = 5, T = 8
     # append output tokens up to max_length
     # set the seed to 42
